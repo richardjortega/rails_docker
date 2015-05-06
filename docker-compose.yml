@@ -2,27 +2,19 @@ db:
   image: postgres
   ports:
     - "5432"
+  volumes:
+    - .:/usr/src/my_app/db
 web:
   build: .
-  command: bundle exec puma -C config/puma.rb
+  command: bundle exec rails s -p 3000 -b '0.0.0.0'
   ports:
-    - "9292:9292"
+    - "3000:3000"
   links:
     - db
     - redis
   volumes:
-    - .:/usr/src/swiftwater
+    - .:/usr/src/my_app/db
   environment:
     RAILS_ENV: production
 redis:
   image: redis
-worker:
-  build: .
-  volumes:
-    - .:/usr/src/swiftwater
-  command: bundle exec sidekiq -C config/sidekiq.yml -e production
-  links:
-    - db
-    - redis
-  environment:
-    RAILS_ENV: production
