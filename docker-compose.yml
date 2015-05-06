@@ -1,0 +1,28 @@
+db:
+  image: postgres
+  ports:
+    - "5432"
+web:
+  build: .
+  command: bundle exec puma -C config/puma.rb
+  ports:
+    - "9292:9292"
+  links:
+    - db
+    - redis
+  volumes:
+    - .:/usr/src/swiftwater
+  environment:
+    RAILS_ENV: production
+redis:
+  image: redis
+worker:
+  build: .
+  volumes:
+    - .:/usr/src/swiftwater
+  command: bundle exec sidekiq -C config/sidekiq.yml -e production
+  links:
+    - db
+    - redis
+  environment:
+    RAILS_ENV: production
